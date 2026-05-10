@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html as html_lib
 from datetime import date, timedelta
 
 import numpy as np
@@ -78,99 +79,197 @@ st.set_page_config(
 
 
 def apply_ui_theme() -> None:
-    """Apply a compact research-terminal visual system."""
+    """Apply a polished high-contrast research terminal visual system."""
     st.markdown(
         """
         <style>
             :root {
-                --surface: #111827;
-                --surface-2: #1f2937;
-                --ink: #f8fafc;
-                --muted: #cbd5e1;
-                --line: #475569;
-                --line-soft: #334155;
-                --accent: #a855f7;
-                --accent-2: #020617;
-                --good: #22c55e;
-                --warn: #f59e0b;
-                --bad: #ef4444;
+                --page: #05040a;
+                --surface: #0f1020;
+                --surface-2: #17162b;
+                --surface-3: #211a3f;
+                --surface-soft: rgba(23, 22, 43, 0.72);
+                --ink: #fbfbff;
+                --muted: #c9c5dc;
+                --soft: #9f9ab8;
+                --line: rgba(255, 255, 255, 0.14);
+                --line-strong: rgba(255, 255, 255, 0.24);
+                --purple: #a855f7;
+                --violet: #7c3aed;
+                --cyan: #22d3ee;
+                --teal: #2dd4bf;
+                --lime: #a3e635;
+                --amber: #f59e0b;
+                --rose: #fb7185;
+                --red: #ef4444;
+                --green: #22c55e;
+                --shadow: 0 24px 70px rgba(0, 0, 0, 0.46);
             }
-            html, body, [data-testid="stAppViewContainer"] {
+            html,
+            body,
+            [data-testid="stAppViewContainer"] {
                 color: var(--ink);
                 background:
-                    radial-gradient(circle at 20% 0%, rgba(126, 34, 206, 0.36), transparent 32rem),
-                    radial-gradient(circle at 85% 10%, rgba(37, 99, 235, 0.22), transparent 28rem),
-                    #020617;
+                    linear-gradient(135deg, rgba(14, 12, 24, 0.98), rgba(5, 4, 10, 0.98) 42%, rgba(19, 11, 34, 0.98)),
+                    radial-gradient(circle at 22% 8%, rgba(168, 85, 247, 0.32), transparent 28rem),
+                    radial-gradient(circle at 78% 18%, rgba(34, 211, 238, 0.18), transparent 24rem),
+                    radial-gradient(circle at 52% 92%, rgba(245, 158, 11, 0.11), transparent 26rem),
+                    var(--page);
+            }
+            [data-testid="stAppViewContainer"] > .main {
+                background: transparent;
             }
             .block-container {
-                padding-top: 1.15rem;
-                padding-bottom: 3rem;
-                max-width: 1500px;
+                padding-top: 1.05rem;
+                padding-bottom: 4rem;
+                max-width: 1580px;
+            }
+            .stMarkdown, .stText, p, li, label, span {
+                color: var(--ink);
+            }
+            a {
+                color: var(--cyan);
+            }
+            h1, h2, h3 {
+                color: #ffffff;
+                letter-spacing: 0;
+            }
+            div[data-testid="stVerticalBlock"] > div:has(> .element-container .command-panel),
+            div[data-testid="stVerticalBlock"] > div:has(> .element-container .recommendation-grid) {
+                gap: 0.55rem;
             }
             section[data-testid="stSidebar"] {
-                background: linear-gradient(180deg, #090b1a 0%, #111827 55%, #1e1b4b 100%);
-                border-right: 1px solid #4c1d95;
+                background:
+                    linear-gradient(180deg, rgba(7, 7, 16, 0.98), rgba(16, 13, 31, 0.98) 52%, rgba(36, 20, 62, 0.96)),
+                    radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.22), transparent 19rem);
+                border-right: 1px solid rgba(168, 85, 247, 0.38);
+                box-shadow: 14px 0 40px rgba(0, 0, 0, 0.25);
             }
             section[data-testid="stSidebar"] label,
-            section[data-testid="stSidebar"] p {
-                color: #f8fafc;
+            section[data-testid="stSidebar"] p,
+            section[data-testid="stSidebar"] span {
+                color: #f7f3ff;
             }
             section[data-testid="stSidebar"] h1,
             section[data-testid="stSidebar"] h2,
             section[data-testid="stSidebar"] h3 {
                 color: #ffffff;
             }
+            section[data-testid="stSidebar"] [data-testid="stExpander"] {
+                border: 1px solid rgba(255, 255, 255, 0.16);
+                border-radius: 10px;
+                background: rgba(255, 255, 255, 0.045);
+            }
+            div[data-testid="stExpander"] {
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                background: rgba(255, 255, 255, 0.035);
+            }
             div[data-testid="stMetric"] {
-                background: linear-gradient(180deg, rgba(17, 24, 39, 0.96), rgba(30, 27, 75, 0.86));
-                border: 1px solid #4c1d95;
-                border-left: 5px solid var(--accent);
-                border-radius: 8px;
+                background:
+                    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.035)),
+                    linear-gradient(135deg, rgba(15, 16, 32, 0.96), rgba(31, 24, 58, 0.94));
+                border: 1px solid var(--line);
+                border-left: 4px solid var(--purple);
+                border-radius: 14px;
                 padding: 0.85rem 0.95rem;
-                box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+                box-shadow: 0 16px 44px rgba(0, 0, 0, 0.28);
+                min-height: 110px;
             }
             div[data-testid="stMetricLabel"] p {
                 color: var(--muted);
                 font-size: 0.78rem;
                 letter-spacing: 0;
-                font-weight: 750;
+                font-weight: 760;
             }
             div[data-testid="stMetricValue"] {
                 color: var(--ink);
-                font-size: 1.45rem;
-                font-weight: 850;
+                font-size: 1.48rem;
+                font-weight: 900;
             }
             .app-hero {
-                border: 1px solid #7e22ce;
-                background: linear-gradient(135deg, #020617 0%, #312e81 48%, #7e22ce 100%);
-                border-radius: 10px;
-                padding: 1.25rem 1.35rem;
-                margin-bottom: 1rem;
-                box-shadow: 0 18px 42px rgba(0, 0, 0, 0.42);
+                position: relative;
+                overflow: hidden;
+                border: 1px solid rgba(255, 255, 255, 0.20);
+                background:
+                    linear-gradient(135deg, rgba(8, 7, 18, 0.95), rgba(37, 24, 78, 0.92) 46%, rgba(5, 4, 10, 0.95)),
+                    radial-gradient(circle at 82% 18%, rgba(34, 211, 238, 0.22), transparent 18rem);
+                border-radius: 22px;
+                padding: 1.35rem 1.45rem 1.2rem;
+                margin-bottom: 0.85rem;
+                box-shadow: var(--shadow);
+            }
+            .app-hero:after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                background:
+                    linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+                    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+                background-size: 34px 34px;
+                mask-image: linear-gradient(90deg, transparent, black 18%, black 82%, transparent);
+                opacity: 0.35;
             }
             .app-hero h1 {
-                margin: 0 0 0.25rem 0;
-                font-size: 2rem;
+                position: relative;
+                z-index: 1;
+                margin: 0 0 0.35rem 0;
+                font-size: clamp(2rem, 4vw, 3.45rem);
                 line-height: 1.12;
                 letter-spacing: 0;
                 color: #ffffff;
+                max-width: 960px;
             }
             .app-hero p {
+                position: relative;
+                z-index: 1;
                 margin: 0;
-                color: #e9d5ff;
-                font-size: 0.98rem;
-                font-weight: 600;
+                color: #ece7ff;
+                font-size: 1.02rem;
+                font-weight: 650;
+                max-width: 1040px;
+            }
+            .eyebrow {
+                position: relative;
+                z-index: 1;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.45rem;
+                border: 1px solid rgba(34, 211, 238, 0.36);
+                color: #cffafe;
+                background: rgba(8, 47, 73, 0.46);
+                border-radius: 999px;
+                padding: 0.35rem 0.7rem;
+                font-size: 0.78rem;
+                font-weight: 850;
+                margin-bottom: 0.8rem;
             }
             .section-label {
-                margin-top: 1.25rem;
-                margin-bottom: 0.45rem;
-                padding: 0.5rem 0.7rem;
-                border-left: 5px solid var(--accent);
-                background: linear-gradient(90deg, rgba(88, 28, 135, 0.92), rgba(17, 24, 39, 0.92));
-                border: 1px solid #4c1d95;
-                border-radius: 6px;
-                font-weight: 850;
+                display: flex;
+                align-items: center;
+                gap: 0.55rem;
+                margin-top: 1.35rem;
+                margin-bottom: 0.55rem;
+                padding: 0.56rem 0.78rem;
+                border: 1px solid var(--line);
+                border-left: 4px solid var(--cyan);
+                background:
+                    linear-gradient(90deg, rgba(34, 211, 238, 0.14), rgba(168, 85, 247, 0.09), rgba(255, 255, 255, 0.03));
+                border-radius: 12px;
+                font-weight: 900;
                 color: var(--ink);
                 font-size: 1.02rem;
+                box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+            }
+            .section-label:before {
+                content: "";
+                width: 0.58rem;
+                height: 0.58rem;
+                border-radius: 50%;
+                background: var(--cyan);
+                box-shadow: 0 0 18px rgba(34, 211, 238, 0.88);
+                flex: 0 0 auto;
             }
             .fine-print {
                 color: var(--muted);
@@ -184,56 +283,341 @@ def apply_ui_theme() -> None:
                 margin: 0.35rem 0 0.85rem;
             }
             .badge {
-                border: 1px solid #a855f7;
+                border: 1px solid rgba(255, 255, 255, 0.18);
                 border-radius: 999px;
-                padding: 0.3rem 0.72rem;
-                background: #111827;
+                padding: 0.36rem 0.78rem;
+                background: rgba(255, 255, 255, 0.065);
                 color: var(--ink);
                 font-size: 0.78rem;
-                font-weight: 800;
+                font-weight: 850;
+                box-shadow: 0 10px 24px rgba(0, 0, 0, 0.20);
             }
-            .badge-good { border-color: #22c55e; color: #052e16; background: #86efac; }
-            .badge-warn { border-color: #f59e0b; color: #451a03; background: #fcd34d; }
-            .badge-bad { border-color: #ef4444; color: #450a0a; background: #fca5a5; }
-            div[data-testid="stDataFrame"] {
-                border: 1px solid #4c1d95;
-                border-radius: 8px;
+            .badge-good { border-color: rgba(34, 197, 94, 0.52); color: #dcfce7; background: rgba(20, 83, 45, 0.62); }
+            .badge-warn { border-color: rgba(245, 158, 11, 0.58); color: #fef3c7; background: rgba(120, 53, 15, 0.62); }
+            .badge-bad { border-color: rgba(251, 113, 133, 0.56); color: #ffe4e6; background: rgba(127, 29, 29, 0.62); }
+            .command-panel {
+                display: grid;
+                grid-template-columns: 1.25fr 0.9fr;
+                gap: 1rem;
+                align-items: stretch;
+                margin: 0.55rem 0 1.05rem;
+            }
+            .command-card,
+            .insight-card,
+            .warning-panel,
+            .empty-state {
+                border: 1px solid var(--line);
+                border-radius: 18px;
+                background:
+                    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.032)),
+                    rgba(15, 16, 32, 0.86);
+                box-shadow: 0 18px 48px rgba(0, 0, 0, 0.30);
+            }
+            .command-card {
+                padding: 1rem;
+            }
+            .command-card h3,
+            .insight-card h3,
+            .warning-panel h3 {
+                margin: 0 0 0.4rem 0;
+                font-size: 0.95rem;
+                color: #ffffff;
+            }
+            .command-card p,
+            .insight-card p,
+            .warning-panel p {
+                margin: 0;
+                color: var(--muted);
+                line-height: 1.45;
+            }
+            .signal-row {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 0.7rem;
+                margin-top: 0.85rem;
+            }
+            .signal-tile {
+                border: 1px solid rgba(255, 255, 255, 0.13);
+                border-radius: 14px;
+                padding: 0.78rem;
+                background: rgba(255, 255, 255, 0.045);
+                min-height: 104px;
+            }
+            .signal-label {
+                color: var(--soft);
+                font-size: 0.72rem;
+                font-weight: 850;
+                text-transform: uppercase;
+                letter-spacing: 0.03em;
+            }
+            .signal-value {
+                color: #ffffff;
+                font-size: 1.28rem;
+                font-weight: 950;
+                margin-top: 0.24rem;
+                word-break: break-word;
+            }
+            .signal-note {
+                color: var(--muted);
+                font-size: 0.78rem;
+                line-height: 1.35;
+                margin-top: 0.28rem;
+            }
+            .thesis-panel {
+                padding: 1rem;
+                background:
+                    linear-gradient(145deg, rgba(168, 85, 247, 0.22), rgba(34, 211, 238, 0.08)),
+                    rgba(255, 255, 255, 0.045);
+            }
+            .thesis-stat {
+                display: flex;
+                justify-content: space-between;
+                gap: 1rem;
+                padding: 0.66rem 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.11);
+            }
+            .thesis-stat:last-child {
+                border-bottom: 0;
+            }
+            .thesis-stat span:first-child {
+                color: var(--muted);
+                font-weight: 750;
+            }
+            .thesis-stat span:last-child {
+                color: #ffffff;
+                font-weight: 900;
+                text-align: right;
+            }
+            .recommendation-grid {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.82rem;
+                margin: 0.62rem 0 0.95rem;
+            }
+            .trade-card {
+                position: relative;
                 overflow: hidden;
-                box-shadow: 0 14px 30px rgba(0, 0, 0, 0.30);
+                border: 1px solid var(--line);
+                border-radius: 18px;
+                background:
+                    linear-gradient(180deg, rgba(255, 255, 255, 0.082), rgba(255, 255, 255, 0.036)),
+                    rgba(12, 12, 25, 0.92);
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
+                padding: 0.95rem;
+                min-height: 310px;
+            }
+            .trade-card:before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, var(--cyan), var(--purple), var(--amber));
+            }
+            .trade-head {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+            .trade-company {
+                color: #ffffff;
+                font-size: 1.02rem;
+                line-height: 1.25;
+                font-weight: 950;
+            }
+            .trade-sector {
+                color: var(--muted);
+                font-size: 0.78rem;
+                font-weight: 760;
+                margin-top: 0.15rem;
+            }
+            .score-pill {
+                border-radius: 999px;
+                min-width: 74px;
+                text-align: center;
+                padding: 0.44rem 0.56rem;
+                font-size: 0.88rem;
+                font-weight: 950;
+                color: #06120b;
+                background: var(--lime);
+            }
+            .score-elite { background: linear-gradient(135deg, #a3e635, #22c55e); color: #052e16; }
+            .score-good { background: linear-gradient(135deg, #2dd4bf, #22c55e); color: #042f2e; }
+            .score-watch { background: linear-gradient(135deg, #fde68a, #f59e0b); color: #451a03; }
+            .score-risk { background: linear-gradient(135deg, #fecdd3, #fb7185); color: #4c0519; }
+            .trade-stats {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.5rem;
+                margin: 0.82rem 0;
+            }
+            .trade-stat {
+                border: 1px solid rgba(255, 255, 255, 0.11);
+                border-radius: 12px;
+                padding: 0.58rem;
+                background: rgba(255, 255, 255, 0.042);
+            }
+            .trade-stat-label {
+                color: var(--soft);
+                font-size: 0.68rem;
+                font-weight: 850;
+                text-transform: uppercase;
+                letter-spacing: 0.03em;
+            }
+            .trade-stat-value {
+                margin-top: 0.16rem;
+                color: #ffffff;
+                font-size: 0.94rem;
+                font-weight: 900;
+            }
+            .trade-reason {
+                color: var(--muted);
+                font-size: 0.82rem;
+                line-height: 1.43;
+                margin-top: 0.62rem;
+            }
+            .risk-chip {
+                display: inline-flex;
+                max-width: 100%;
+                border: 1px solid rgba(245, 158, 11, 0.45);
+                color: #fef3c7;
+                background: rgba(120, 53, 15, 0.48);
+                border-radius: 999px;
+                padding: 0.28rem 0.58rem;
+                font-size: 0.72rem;
+                font-weight: 820;
+                margin-top: 0.68rem;
+            }
+            .allocation-list {
+                display: grid;
+                gap: 0.55rem;
+                margin: 0.35rem 0 0.9rem;
+            }
+            .allocation-item {
+                border: 1px solid var(--line);
+                border-radius: 14px;
+                padding: 0.72rem;
+                background: rgba(255, 255, 255, 0.045);
+            }
+            .allocation-top {
+                display: flex;
+                justify-content: space-between;
+                gap: 0.75rem;
+                align-items: center;
+                margin-bottom: 0.42rem;
+            }
+            .allocation-name {
+                color: #ffffff;
+                font-size: 0.9rem;
+                font-weight: 900;
+            }
+            .allocation-value {
+                color: #cffafe;
+                font-size: 0.88rem;
+                font-weight: 900;
+                white-space: nowrap;
+            }
+            .allocation-bar {
+                height: 0.55rem;
+                overflow: hidden;
+                border-radius: 999px;
+                background: rgba(255, 255, 255, 0.11);
+            }
+            .allocation-fill {
+                height: 100%;
+                border-radius: inherit;
+                background: linear-gradient(90deg, var(--cyan), var(--purple), var(--amber));
+            }
+            .warning-panel {
+                padding: 0.95rem;
+                margin-top: 0.35rem;
+            }
+            .warning-list {
+                display: grid;
+                gap: 0.5rem;
+                margin-top: 0.65rem;
+            }
+            .warning-item {
+                border: 1px solid rgba(245, 158, 11, 0.28);
+                border-radius: 12px;
+                padding: 0.62rem 0.72rem;
+                background: rgba(120, 53, 15, 0.22);
+                color: #fff7ed;
+                font-weight: 720;
+            }
+            .warning-item.info {
+                border-color: rgba(34, 211, 238, 0.26);
+                background: rgba(8, 47, 73, 0.24);
+                color: #ecfeff;
+            }
+            .empty-state {
+                padding: 1.05rem;
+                color: var(--muted);
+            }
+            div[data-testid="stDataFrame"] {
+                border: 1px solid var(--line);
+                border-radius: 14px;
+                overflow: hidden;
+                box-shadow: 0 16px 42px rgba(0, 0, 0, 0.30);
+                background: rgba(15, 16, 32, 0.78);
             }
             .stTabs [data-baseweb="tab-list"] {
                 gap: 0.35rem;
-                border-bottom: 1px solid #4c1d95;
+                border-bottom: 1px solid var(--line);
             }
             .stTabs [data-baseweb="tab"] {
-                border-radius: 8px 8px 0 0;
+                border-radius: 10px 10px 0 0;
                 padding: 0.65rem 0.9rem;
             }
             .stButton > button {
                 width: 100%;
-                border-radius: 8px;
-                font-weight: 850;
-                border: 1px solid #c084fc;
-                background: linear-gradient(135deg, #7e22ce, #4f46e5);
+                border-radius: 12px;
+                font-weight: 900;
+                border: 1px solid rgba(34, 211, 238, 0.55);
+                background: linear-gradient(135deg, #7c3aed, #0891b2);
                 color: #ffffff;
+                box-shadow: 0 12px 30px rgba(124, 58, 237, 0.34);
             }
             div[data-testid="stAlert"] {
-                border: 1px solid var(--line);
-                color: #f8fafc;
-                background: rgba(17, 24, 39, 0.88);
-            }
-            .stMarkdown, .stText, p, li, label, span {
-                color: #f8fafc;
+                border: 1px solid var(--line-strong);
+                color: #ffffff;
+                background: rgba(15, 16, 32, 0.90);
+                border-radius: 14px;
             }
             input, textarea, [data-baseweb="select"] {
-                color: #f8fafc;
+                color: #ffffff;
             }
             div[data-baseweb="input"],
             div[data-baseweb="textarea"],
             div[data-baseweb="select"] > div {
-                background-color: #111827;
-                border-color: #64748b;
-                color: #f8fafc;
+                background-color: rgba(255, 255, 255, 0.065);
+                border-color: rgba(255, 255, 255, 0.22);
+                color: #ffffff;
+                border-radius: 10px;
+            }
+            .js-plotly-plot .plotly .modebar {
+                right: 10px;
+            }
+            @media (max-width: 1100px) {
+                .command-panel,
+                .recommendation-grid {
+                    grid-template-columns: 1fr;
+                }
+                .signal-row {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+            }
+            @media (max-width: 720px) {
+                .app-hero {
+                    border-radius: 16px;
+                    padding: 1rem;
+                }
+                .signal-row,
+                .trade-stats {
+                    grid-template-columns: 1fr;
+                }
             }
         </style>
         """,
@@ -273,20 +657,221 @@ def format_money(value: float, decimals: int = 0) -> str:
 
 
 def style_numeric_table(styler: pd.io.formats.style.Styler, gradient_columns: list[str] | None = None):
-    return styler.set_properties(**{"font-size": "12px", "color": "#f8fafc", "background-color": "#111827"}).set_table_styles(
+    return styler.set_properties(
+        **{
+            "font-size": "12px",
+            "color": "#fbfbff",
+            "background-color": "#111021",
+            "border-color": "rgba(255, 255, 255, 0.10)",
+        }
+    ).set_table_styles(
         [
             {
                 "selector": "th",
                 "props": [
                     ("font-size", "12px"),
-                    ("font-weight", "850"),
-                    ("background-color", "#312e81"),
+                    ("font-weight", "900"),
+                    ("background-color", "#27194a"),
                     ("color", "#ffffff"),
-                    ("border-color", "#7e22ce"),
+                    ("border-color", "rgba(255, 255, 255, 0.16)"),
                 ],
             },
-            {"selector": "td", "props": [("border-color", "#334155")]},
+            {"selector": "td", "props": [("border-color", "rgba(255, 255, 255, 0.08)")]},
+            {"selector": "tbody tr:nth-child(even)", "props": [("background-color", "#15142b")]},
+            {"selector": "tbody tr:hover", "props": [("background-color", "#211a3f")]},
         ]
+    )
+
+
+def _is_missing(value: object) -> bool:
+    try:
+        return bool(pd.isna(value))
+    except (TypeError, ValueError):
+        return False
+
+
+def escape_html(value: object) -> str:
+    if _is_missing(value):
+        return "N/A"
+    return html_lib.escape(str(value))
+
+
+def compact_text(value: object, limit: int = 155) -> str:
+    text = escape_html(value)
+    if len(text) <= limit:
+        return text
+    return text[: limit - 3].rstrip() + "..."
+
+
+def score_class(score: float) -> str:
+    if pd.isna(score):
+        return "score-risk"
+    if score >= 82:
+        return "score-elite"
+    if score >= 70:
+        return "score-good"
+    if score >= 58:
+        return "score-watch"
+    return "score-risk"
+
+
+def render_command_panel(
+    *,
+    top_candidate: str,
+    top_sector: str,
+    holding_period_days: int,
+    risk_preference: str,
+    ranked_count: int,
+    scanned_count: int,
+    portfolio_metrics: dict[str, float],
+    allocation_method: str,
+) -> None:
+    """Render the app's executive command panel."""
+    hit_rate = ranked_count / scanned_count if scanned_count else np.nan
+    html = f"""
+    <div class="command-panel">
+        <div class="command-card">
+            <h3>Monthly Research Brief</h3>
+            <p>
+                The scanner ranks current S&amp;P 500 stocks for a bullish, long-only holding period.
+                The output is an estimate based on historical price behavior, technical setup, risk controls,
+                and your sidebar settings.
+            </p>
+            <div class="signal-row">
+                <div class="signal-tile">
+                    <div class="signal-label">Top idea</div>
+                    <div class="signal-value">{escape_html(top_candidate)}</div>
+                    <div class="signal-note">{escape_html(top_sector)}</div>
+                </div>
+                <div class="signal-tile">
+                    <div class="signal-label">Horizon</div>
+                    <div class="signal-value">{holding_period_days} days</div>
+                    <div class="signal-note">Minimum 7 calendar days enforced</div>
+                </div>
+                <div class="signal-tile">
+                    <div class="signal-label">Screen pass rate</div>
+                    <div class="signal-value">{format_percent(hit_rate, 1)}</div>
+                    <div class="signal-note">{ranked_count} of {scanned_count} stocks passed filters</div>
+                </div>
+                <div class="signal-tile">
+                    <div class="signal-label">Portfolio style</div>
+                    <div class="signal-value">{escape_html(risk_preference)}</div>
+                    <div class="signal-note">{escape_html(allocation_method)} allocation</div>
+                </div>
+            </div>
+        </div>
+        <div class="command-card thesis-panel">
+            <h3>Proposed Portfolio Snapshot</h3>
+            <div class="thesis-stat"><span>Net expected return estimate</span><span>{format_percent(portfolio_metrics["net_expected_return"])}</span></div>
+            <div class="thesis-stat"><span>Estimated downside risk</span><span>{format_percent(portfolio_metrics["downside_risk"])}</span></div>
+            <div class="thesis-stat"><span>Probability positive, historical</span><span>{format_percent(portfolio_metrics["probability_positive"], 1)}</span></div>
+            <div class="thesis-stat"><span>Estimated Sharpe</span><span>{format_number(portfolio_metrics["sharpe"])}</span></div>
+        </div>
+    </div>
+    """
+    st.markdown(html, unsafe_allow_html=True)
+
+
+def render_recommendation_cards(recommendations: pd.DataFrame, max_cards: int = 6) -> None:
+    """Show the top ideas as readable trade cards before the detailed table."""
+    if recommendations.empty:
+        st.markdown(
+            '<div class="empty-state">No buy candidates met the current scanner thresholds.</div>',
+            unsafe_allow_html=True,
+        )
+        return
+
+    cards = []
+    for ticker, row in recommendations.head(max_cards).iterrows():
+        company = row.get("Company Name") or row.get("Company") or ticker
+        sector = row.get("Sector", "Unavailable")
+        score = row.get("Bullish Score", np.nan)
+        risk_warning = row.get("Risk Warning", "No major scanner warning")
+        if risk_warning == "No major scanner warning":
+            risk_warning = "No major warning from scanner"
+
+        cards.append(
+            f"""
+            <div class="trade-card">
+                <div class="trade-head">
+                    <div>
+                        <div class="trade-company">{escape_html(company)} ({escape_html(ticker)})</div>
+                        <div class="trade-sector">{escape_html(sector)}</div>
+                    </div>
+                    <div class="score-pill {score_class(score)}">{format_number(score, 1)}</div>
+                </div>
+                <div class="trade-stats">
+                    <div class="trade-stat">
+                        <div class="trade-stat-label">Buy zone</div>
+                        <div class="trade-stat-value">{format_money(row.get("Suggested Buy Zone"), 2)}</div>
+                    </div>
+                    <div class="trade-stat">
+                        <div class="trade-stat-label">Target zone</div>
+                        <div class="trade-stat-value">{format_money(row.get("Suggested Sell / Take-Profit Zone"), 2)}</div>
+                    </div>
+                    <div class="trade-stat">
+                        <div class="trade-stat-label">Expected return</div>
+                        <div class="trade-stat-value">{format_percent(row.get("Expected Return Estimate"))}</div>
+                    </div>
+                    <div class="trade-stat">
+                        <div class="trade-stat-label">Downside risk</div>
+                        <div class="trade-stat-value">{format_percent(row.get("Downside Risk Estimate"))}</div>
+                    </div>
+                </div>
+                <div class="trade-reason">{compact_text(row.get("Main Reason"), 180)}</div>
+                <div class="risk-chip">{compact_text(risk_warning, 72)}</div>
+            </div>
+            """
+        )
+
+    st.markdown(f'<div class="recommendation-grid">{"".join(cards)}</div>', unsafe_allow_html=True)
+
+
+def render_allocation_ladder(allocation: pd.DataFrame, initial_capital: float, max_items: int = 10) -> None:
+    if allocation.empty:
+        return
+
+    rows = []
+    for ticker, row in allocation.sort_values("Suggested Allocation", ascending=False).head(max_items).iterrows():
+        company = row.get("Company Name") or row.get("Company") or ticker
+        weight = row.get("Suggested Allocation", np.nan)
+        dollars = row.get("Suggested Dollars", np.nan)
+        width = 0 if pd.isna(weight) else min(max(weight * 100, 0), 100)
+        rows.append(
+            f"""
+            <div class="allocation-item">
+                <div class="allocation-top">
+                    <div class="allocation-name">{escape_html(company)} ({escape_html(ticker)})</div>
+                    <div class="allocation-value">{format_percent(weight, 1)} | {format_money(dollars)}</div>
+                </div>
+                <div class="allocation-bar"><div class="allocation-fill" style="width: {width:.1f}%"></div></div>
+            </div>
+            """
+        )
+
+    st.markdown(f'<div class="allocation-list">{"".join(rows)}</div>', unsafe_allow_html=True)
+    render_fine_print(
+        f"Allocation assumes {format_money(initial_capital)} initial capital and uses the risk controls from the sidebar."
+    )
+
+
+def render_warning_panel(title: str, warnings: list[str]) -> None:
+    if not warnings:
+        warnings = ["No major warnings generated."]
+
+    items = []
+    for warning in warnings:
+        tone = "info" if "No major" in warning else ""
+        items.append(f'<div class="warning-item {tone}">{escape_html(warning)}</div>')
+    st.markdown(
+        f"""
+        <div class="warning-panel">
+            <h3>{escape_html(title)}</h3>
+            <p>Use these as research flags before placing any trade. They are not final decisions.</p>
+            <div class="warning-list">{"".join(items)}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
 
@@ -1596,9 +2181,9 @@ def render_metric_cards(metrics: pd.DataFrame, portfolio_returns: pd.Series) -> 
 def render_technical_chart(ticker: str, indicator_frame: pd.DataFrame) -> None:
     chart_data = indicator_frame.dropna(subset=["Price"])
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data["Price"], name="Price", line={"width": 2}))
+    fig.add_trace(go.Scatter(x=chart_data.index, y=chart_data["Price"], name="Price", line={"width": 2.4, "color": "#22d3ee"}))
 
-    for column, color in [("MA20", "#4C78A8"), ("MA50", "#F58518"), ("MA200", "#54A24B")]:
+    for column, color in [("MA20", "#a855f7"), ("MA50", "#f59e0b"), ("MA200", "#a3e635")]:
         fig.add_trace(
             go.Scatter(
                 x=chart_data.index,
@@ -1613,7 +2198,7 @@ def render_technical_chart(ticker: str, indicator_frame: pd.DataFrame) -> None:
             x=chart_data.index,
             y=chart_data["Bollinger Upper"],
             name="Bollinger Upper",
-            line={"width": 1, "dash": "dot", "color": "#B279A2"},
+            line={"width": 1, "dash": "dot", "color": "#fb7185"},
         )
     )
     fig.add_trace(
@@ -1621,7 +2206,7 @@ def render_technical_chart(ticker: str, indicator_frame: pd.DataFrame) -> None:
             x=chart_data.index,
             y=chart_data["Bollinger Lower"],
             name="Bollinger Lower",
-            line={"width": 1, "dash": "dot", "color": "#B279A2"},
+            line={"width": 1, "dash": "dot", "color": "#fb7185"},
         )
     )
 
@@ -1631,14 +2216,14 @@ def render_technical_chart(ticker: str, indicator_frame: pd.DataFrame) -> None:
         yaxis_title="Adjusted Close",
         legend_title_text="Indicator",
         template="plotly_dark",
-        paper_bgcolor="#0b1020",
-        plot_bgcolor="#111827",
-        font={"color": "#f8fafc"},
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(255,255,255,0.035)",
+        font={"color": "#fbfbff"},
         hovermode="x unified",
         margin={"l": 20, "r": 20, "t": 55, "b": 25},
     )
-    fig.update_xaxes(gridcolor="#334155", zerolinecolor="#94a3b8")
-    fig.update_yaxes(gridcolor="#334155", zerolinecolor="#94a3b8")
+    fig.update_xaxes(gridcolor="rgba(255,255,255,0.10)", zerolinecolor="rgba(255,255,255,0.20)")
+    fig.update_yaxes(gridcolor="rgba(255,255,255,0.10)", zerolinecolor="rgba(255,255,255,0.20)")
     st.plotly_chart(fig, use_container_width=True)
 
 
@@ -1647,8 +2232,9 @@ def render_dashboard() -> None:
     st.markdown(
         """
         <div class="app-hero">
-            <h1>S&P 500 Long-Term Bullish Opportunity Scanner</h1>
-            <p>One-month research workflow for bullish, long-only trade ideas with technical ranking, allocation, backtesting, manual scenarios, and risk controls.</p>
+            <div class="eyebrow">S&amp;P 500 research cockpit | Version 1</div>
+            <h1>Monthly Bullish Trade Intelligence</h1>
+            <p>Scan the S&amp;P 500, rank buy-low/sell-high setups, size a one-month allocation, and surface the risks before the trade idea reaches your watchlist.</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -1866,6 +2452,11 @@ def render_dashboard() -> None:
         return
 
     holdings_review = classify_current_holdings(valid_holdings, ranked, all_candidates)
+    if not holdings_review.empty:
+        holdings_metadata = get_company_metadata(tuple(holdings_review.index))
+        holdings_review = holdings_review.join(holdings_metadata, how="left")
+        holdings_review["Company"] = holdings_review["Company"].fillna(holdings_review.index.to_series())
+        holdings_review["Sector"] = holdings_review["Sector"].fillna("Unavailable")
     trade_plan = generate_trade_plan(
         buy_recommendations,
         holdings_review,
@@ -1891,21 +2482,22 @@ def render_dashboard() -> None:
         buy_recommendations["Sector"] = buy_recommendations["Sector"].fillna("Unavailable")
 
     render_section_label("Executive Overview")
-    cols = st.columns(4)
-    cols[0].metric("S&P 500 Stocks Screened", f"{len(prices.columns)}")
-    cols[1].metric("Stocks Passing Buy Filters", f"{len(ranked)}")
-    cols[2].metric("Risk Preference", risk_preference)
-    cols[3].metric("Max Suggested Buys", f"{int(max_recommendations)}")
-    risk_rule_cols = st.columns(4)
-    risk_rule_cols[0].metric("Allocation Method", allocation_method)
-    risk_rule_cols[1].metric("Max Position Size", f"{max_position_size:.0%}")
-    risk_rule_cols[2].metric("Stop / Trail", f"{stop_loss_pct:.0%} / {trailing_stop_pct:.0%}")
-    risk_rule_cols[3].metric("Take Profit", f"{take_profit_pct:.0%}")
-
     top_candidate = buy_recommendations["Company"].iloc[0] if not buy_recommendations.empty else "None"
+    top_sector = buy_recommendations["Sector"].iloc[0] if not buy_recommendations.empty else "No sector"
     warning_count = len([warning for warning in trade_plan["portfolio_warnings"] if "No major" not in warning])
+    render_command_panel(
+        top_candidate=top_candidate,
+        top_sector=top_sector,
+        holding_period_days=int(holding_period_days),
+        risk_preference=risk_preference,
+        ranked_count=len(ranked),
+        scanned_count=len(prices.columns),
+        portfolio_metrics=portfolio_metrics,
+        allocation_method=allocation_method,
+    )
     overview_badges = [
         (f"Top candidate: {top_candidate}", "good" if top_candidate != "None" else "warn"),
+        (f"Qualified stocks: {len(ranked)} / {len(prices.columns)}", "good" if len(ranked) else "warn"),
         (f"Horizon: {int(holding_period_days)} days", "good"),
         (f"Warnings: {warning_count}", "warn" if warning_count else "good"),
         (f"Allocation: {allocation_method}", "good"),
@@ -1913,39 +2505,67 @@ def render_dashboard() -> None:
     render_badges(overview_badges)
 
     if not buy_recommendations.empty:
-        top_chart = buy_recommendations.head(10).sort_values("Bullish Score")
-        score_fig = px.bar(
-            top_chart,
-            x="Bullish Score",
-            y="Company",
-            orientation="h",
-            color="Risk Score",
-            color_continuous_scale=[
-                [0.00, "#a11212"],
-                [0.45, "#d97706"],
-                [0.70, "#facc15"],
-                [1.00, "#006d3f"],
-            ],
-            labels={"Company": "Company", "Bullish Score": "Bullish score"},
-            title="Top candidate score profile",
-        )
-        score_fig.update_layout(
-            template="plotly_dark",
-            paper_bgcolor="#0b1020",
-            plot_bgcolor="#111827",
-            font={"color": "#f8fafc"},
-            margin={"l": 20, "r": 20, "t": 55, "b": 25},
-            height=360,
-            coloraxis_colorbar_title="Risk score",
-        )
-        score_fig.update_xaxes(gridcolor="#334155", zerolinecolor="#94a3b8")
-        score_fig.update_yaxes(gridcolor="#334155")
-        st.plotly_chart(score_fig, use_container_width=True)
+        top_chart = buy_recommendations.head(12).copy()
+        chart_cols = st.columns([1.15, 0.85])
+        with chart_cols[0]:
+            score_fig = px.bar(
+                top_chart.sort_values("Bullish Score"),
+                x="Bullish Score",
+                y="Company",
+                orientation="h",
+                color="Risk Score",
+                color_continuous_scale=[
+                    [0.00, "#fb7185"],
+                    [0.38, "#f59e0b"],
+                    [0.68, "#2dd4bf"],
+                    [1.00, "#a3e635"],
+                ],
+                labels={"Company": "Company", "Bullish Score": "Bullish score"},
+                title="Top score stack",
+            )
+            score_fig.update_layout(
+                template="plotly_dark",
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(255,255,255,0.035)",
+                font={"color": "#fbfbff"},
+                margin={"l": 12, "r": 18, "t": 52, "b": 24},
+                height=410,
+                coloraxis_colorbar_title="Risk score",
+            )
+            score_fig.update_xaxes(gridcolor="rgba(255,255,255,0.10)", zerolinecolor="rgba(255,255,255,0.20)")
+            score_fig.update_yaxes(gridcolor="rgba(255,255,255,0.06)")
+            st.plotly_chart(score_fig, use_container_width=True)
+        with chart_cols[1]:
+            map_fig = px.scatter(
+                top_chart,
+                x="Downside Risk Estimate",
+                y="Expected Return Estimate",
+                size="Bullish Score",
+                color="Probability Positive Historical Return",
+                hover_name="Company",
+                color_continuous_scale=["#fb7185", "#f59e0b", "#22d3ee", "#a3e635"],
+                labels={
+                    "Downside Risk Estimate": "Downside risk estimate",
+                    "Expected Return Estimate": "Expected return estimate",
+                    "Probability Positive Historical Return": "Historical positive rate",
+                },
+                title="Risk/reward map",
+            )
+            map_fig.update_layout(
+                template="plotly_dark",
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(255,255,255,0.035)",
+                font={"color": "#fbfbff"},
+                margin={"l": 12, "r": 18, "t": 52, "b": 24},
+                height=410,
+                coloraxis_colorbar_title="Positive rate",
+            )
+            map_fig.update_xaxes(tickformat=".0%", gridcolor="rgba(255,255,255,0.10)", zerolinecolor="rgba(255,255,255,0.20)")
+            map_fig.update_yaxes(tickformat=".0%", gridcolor="rgba(255,255,255,0.10)", zerolinecolor="rgba(255,255,255,0.20)")
+            st.plotly_chart(map_fig, use_container_width=True)
 
-    render_section_label("Scenario Analysis")
-    if scenario_results["scenario_summary"].empty:
-        st.info("No manual scenario adjustments are active for this month.")
-    else:
+    if not scenario_results["scenario_summary"].empty:
+        render_section_label("Scenario Analysis")
         st.caption(
             "Scenario adjustments are manual assumptions layered onto historical estimates. "
             "They are not facts, forecasts, or live news analysis."
@@ -1961,12 +2581,17 @@ def render_dashboard() -> None:
             ),
             use_container_width=True,
         )
+    elif show_advanced_details:
+        render_section_label("Scenario Analysis")
+        st.info("No manual scenario adjustments are active for this month.")
 
     render_section_label("Buy Recommendations")
     if buy_recommendations.empty:
         st.warning("No stocks met the current scanner thresholds. Consider a different risk preference or review later.")
     else:
         display_buys = buy_recommendations.copy()
+        render_recommendation_cards(display_buys)
+        st.caption("The cards show the most readable version of the monthly ideas. The table below keeps the exact estimated levels.")
         buy_cols = [
             "Company",
             "Sector",
@@ -2007,22 +2632,33 @@ def render_dashboard() -> None:
     if holdings_review.empty:
         st.info("Add current holdings in the sidebar if you want a buy/hold/sell review.")
     else:
+        holdings_cols = [
+            "Company",
+            "Sector",
+            "Suggested Action",
+            "Current Score",
+            "Condition",
+            "Expected Return Estimate",
+            "Downside Risk Estimate",
+            "Suggested Sell Zone",
+            "Suggested Stop Loss",
+            "Explanation",
+        ]
         st.dataframe(
-            holdings_review.style.format(
-                {
-                    "Current Score": "{:.1f}",
-                    "1M Risk/Reward": "{:.2f}",
-                    "Expected Return Estimate": "{:.2%}",
-                    "Downside Risk Estimate": "{:.2%}",
-                    "Scenario Return Adjustment": "{:.2%}",
-                    "Scenario Risk Adjustment": "{:.2%}",
-                    "Suggested Sell Zone": "${:.2f}",
-                    "Suggested Stop Loss": "${:.2f}",
-                }
+            style_numeric_table(
+                holdings_review[holdings_cols].style.format(
+                    {
+                        "Current Score": "{:.1f}",
+                        "Expected Return Estimate": "{:.2%}",
+                        "Downside Risk Estimate": "{:.2%}",
+                        "Suggested Sell Zone": "${:.2f}",
+                        "Suggested Stop Loss": "${:.2f}",
+                    }
+                ),
+                ["Current Score", "Expected Return Estimate"],
             ),
             use_container_width=True,
         )
-
     render_section_label("Trade Plan")
     st.caption(trade_plan["summary"])
     plan_cols = st.columns(4)
@@ -2070,43 +2706,49 @@ def render_dashboard() -> None:
         render_section_label("What To Buy")
         allocation_chart = trade_plan["buys"].copy()
         allocation_chart["Company"] = allocation_chart["Company"].fillna(allocation_chart.index.to_series())
-        allocation_fig = px.pie(
-            allocation_chart,
-            names="Company",
-            values="Suggested Allocation",
-            hole=0.48,
-            color_discrete_sequence=[
-                "#0f4c81",
-                "#006d3f",
-                "#d97706",
-                "#7c3aed",
-                "#be123c",
-                "#0891b2",
-                "#4d7c0f",
-                "#9333ea",
-                "#b45309",
-                "#1d4ed8",
-            ],
-            title="Suggested portfolio allocation for the selected holding period",
-        )
-        allocation_fig.update_traces(
-            textinfo="percent+label",
-            textposition="inside",
-            hovertemplate="%{label}<br>Allocation: %{percent}<extra></extra>",
-        )
-        allocation_fig.update_layout(
-            template="plotly_dark",
-            paper_bgcolor="#0b1020",
-            plot_bgcolor="#111827",
-            font={"color": "#f8fafc"},
-            margin={"l": 20, "r": 20, "t": 55, "b": 20},
-            height=430,
-            showlegend=True,
-        )
-        st.plotly_chart(allocation_fig, use_container_width=True)
-        st.caption(
-            "This is the proposed one-period portfolio shape based on the scanner score, risk preference, scenario assumptions, and risk controls."
-        )
+        allocation_viz_cols = st.columns([0.92, 1.08])
+        with allocation_viz_cols[0]:
+            allocation_fig = px.pie(
+                allocation_chart,
+                names="Company",
+                values="Suggested Allocation",
+                hole=0.62,
+                color_discrete_sequence=[
+                    "#22d3ee",
+                    "#a855f7",
+                    "#a3e635",
+                    "#f59e0b",
+                    "#fb7185",
+                    "#2dd4bf",
+                    "#38bdf8",
+                    "#c084fc",
+                    "#facc15",
+                    "#34d399",
+                ],
+                title="Suggested one-month allocation",
+            )
+            allocation_fig.update_traces(
+                textinfo="percent",
+                textposition="inside",
+                marker={"line": {"color": "rgba(5,4,10,0.85)", "width": 2}},
+                hovertemplate="%{label}<br>Allocation: %{percent}<extra></extra>",
+            )
+            allocation_fig.update_layout(
+                template="plotly_dark",
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(255,255,255,0.035)",
+                font={"color": "#fbfbff"},
+                margin={"l": 8, "r": 8, "t": 52, "b": 12},
+                height=440,
+                showlegend=True,
+                legend={"orientation": "v", "x": 1.02, "y": 0.5, "font": {"size": 11}},
+            )
+            st.plotly_chart(allocation_fig, use_container_width=True)
+        with allocation_viz_cols[1]:
+            render_allocation_ladder(trade_plan["buys"], initial_capital)
+            st.caption(
+                "This is the proposed one-period portfolio shape based on scanner score, risk preference, scenario assumptions, and risk controls."
+            )
 
         st.dataframe(
             style_numeric_table(
@@ -2135,8 +2777,7 @@ def render_dashboard() -> None:
         rm_cols[2].metric("Max Drawdown Limit", f"{max_portfolio_drawdown:.0%}")
 
         render_section_label("Portfolio Allocation Warnings")
-        for warning in trade_plan["portfolio_warnings"]:
-            st.warning(warning) if "No major" not in warning else st.info(warning)
+        render_warning_panel("Portfolio Risk Flags", trade_plan["portfolio_warnings"])
 
         selected_returns = returns[list(trade_plan["buys"].index)].dropna(how="all")
         if show_advanced_details and len(trade_plan["buys"]) > 1 and not selected_returns.empty:
@@ -2152,9 +2793,9 @@ def render_dashboard() -> None:
             )
             corr_fig.update_layout(
                 template="plotly_dark",
-                paper_bgcolor="#0b1020",
-                plot_bgcolor="#111827",
-                font={"color": "#f8fafc"},
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(255,255,255,0.035)",
+                font={"color": "#fbfbff"},
                 margin={"l": 20, "r": 20, "t": 25, "b": 25},
             )
             st.plotly_chart(corr_fig, use_container_width=True)
@@ -2228,14 +2869,14 @@ def render_dashboard() -> None:
             )
             equity_fig.update_layout(
                 template="plotly_dark",
-                paper_bgcolor="#0b1020",
-                plot_bgcolor="#111827",
-                font={"color": "#f8fafc"},
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(255,255,255,0.035)",
+                font={"color": "#fbfbff"},
                 hovermode="x unified",
                 margin={"l": 20, "r": 20, "t": 55, "b": 25},
             )
-            equity_fig.update_xaxes(gridcolor="#334155", zerolinecolor="#94a3b8")
-            equity_fig.update_yaxes(gridcolor="#334155", zerolinecolor="#94a3b8")
+            equity_fig.update_xaxes(gridcolor="rgba(255,255,255,0.10)", zerolinecolor="rgba(255,255,255,0.20)")
+            equity_fig.update_yaxes(gridcolor="rgba(255,255,255,0.10)", zerolinecolor="rgba(255,255,255,0.20)")
             st.plotly_chart(equity_fig, use_container_width=True)
 
             drawdown_fig = px.line(
@@ -2248,14 +2889,14 @@ def render_dashboard() -> None:
             drawdown_fig.update_layout(yaxis_tickformat=".0%")
             drawdown_fig.update_layout(
                 template="plotly_dark",
-                paper_bgcolor="#0b1020",
-                plot_bgcolor="#111827",
-                font={"color": "#f8fafc"},
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(255,255,255,0.035)",
+                font={"color": "#fbfbff"},
                 hovermode="x unified",
                 margin={"l": 20, "r": 20, "t": 55, "b": 25},
             )
-            drawdown_fig.update_xaxes(gridcolor="#334155", zerolinecolor="#94a3b8")
-            drawdown_fig.update_yaxes(gridcolor="#334155", zerolinecolor="#94a3b8")
+            drawdown_fig.update_xaxes(gridcolor="rgba(255,255,255,0.10)", zerolinecolor="rgba(255,255,255,0.20)")
+            drawdown_fig.update_yaxes(gridcolor="rgba(255,255,255,0.10)", zerolinecolor="rgba(255,255,255,0.20)")
             st.plotly_chart(drawdown_fig, use_container_width=True)
 
             yearly_cols = ["Strategy Return", "Benchmark Return", "Excess Return vs Benchmark"]
@@ -2281,14 +2922,14 @@ def render_dashboard() -> None:
             rolling_fig.update_layout(yaxis_tickformat=".0%")
             rolling_fig.update_layout(
                 template="plotly_dark",
-                paper_bgcolor="#0b1020",
-                plot_bgcolor="#111827",
-                font={"color": "#f8fafc"},
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(255,255,255,0.035)",
+                font={"color": "#fbfbff"},
                 hovermode="x unified",
                 margin={"l": 20, "r": 20, "t": 55, "b": 25},
             )
-            rolling_fig.update_xaxes(gridcolor="#334155", zerolinecolor="#94a3b8")
-            rolling_fig.update_yaxes(gridcolor="#334155", zerolinecolor="#94a3b8")
+            rolling_fig.update_xaxes(gridcolor="rgba(255,255,255,0.10)", zerolinecolor="rgba(255,255,255,0.20)")
+            rolling_fig.update_yaxes(gridcolor="rgba(255,255,255,0.10)", zerolinecolor="rgba(255,255,255,0.20)")
             st.plotly_chart(rolling_fig, use_container_width=True)
 
             render_section_label("Worst Losing Periods")
@@ -2399,9 +3040,15 @@ def render_dashboard() -> None:
     if warnings_table.empty:
         st.info("No major scanner warnings among the top ranked candidates.")
     else:
+        warning_metadata = get_company_metadata(tuple(warnings_table.index))
+        warnings_table = warnings_table.join(warning_metadata, how="left")
+        warnings_table["Company"] = warnings_table["Company"].fillna(warnings_table.index.to_series())
+        warnings_table["Sector"] = warnings_table["Sector"].fillna("Unavailable")
         st.dataframe(
             warnings_table[
                 [
+                    "Company",
+                    "Sector",
                     "Bullish Score",
                     "Risk Warning",
                     "Annualized Volatility",
